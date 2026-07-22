@@ -1,65 +1,109 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { UploadResumeForm } from '@/components/upload-resume-form'
+import { LandingPage } from '@/components/landing-page'
+import { SiteHeader } from '@/components/site-header'
+import { Card } from '@/components/ui/card'
 
-export default function Home() {
+const STATUS_META: Record<string, { label: string; tone: string }> = {
+  uploaded: { label: 'Queued', tone: 'text-ink-subtle' },
+  parsing: { label: 'Parsing…', tone: 'text-warning' },
+  parsed: { label: 'Ready', tone: 'text-success' },
+  parse_failed: { label: 'Needs review', tone: 'text-danger' },
+}
+
+const TIPS = [
+  'Use numbers wherever possible — "grew revenue 30%" beats "helped grow revenue."',
+  'List skills that match the exact keywords in job postings you\u2019re targeting.',
+  'Keep section headings standard: Summary, Experience, Education, Skills.',
+]
+
+export default async function Home() {
+  const supabase = await createClient()
+  const { data } = await supabase.auth.getUser()
+
+  if (!data?.user) {
+    return <LandingPage />
+  }
+
+  const { data: resumes } = await supabase
+    .from('resumes')
+    .select('id, file_name, status, created_at')
+    .order('created_at', { ascending: false })
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex-1 flex flex-col">
+      <SiteHeader userEmail={data.user.email} />
+
+      <div className="flex flex-1 flex-col items-center p-6">
+        <div className="w-full max-w-2xl">
+          <div className="mb-6 pt-4">
+            <h1 className="text-2xl font-semibold tracking-tight">Your resumes</h1>
+            <p className="text-sm text-ink-muted mt-1">
+              Upload a resume to get an ATS score and an AI-optimized rewrite.
+            </p>
+          </div>
+
+          <Card className="p-6 mb-6">
+            <UploadResumeForm />
+          </Card>
+
+          {(!resumes || resumes.length === 0) && (
+            <Card className="p-5 mb-8 bg-success-bg border-transparent">
+              <p className="text-sm font-semibold text-success mb-2">Tips for a high ATS score</p>
+              <ul className="flex flex-col gap-1.5">
+                {TIPS.map((tip) => (
+                  <li key={tip} className="text-sm text-ink-muted flex gap-2">
+                    <span className="text-success">•</span>
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          {!resumes || resumes.length === 0 ? (
+            <Card className="p-10 text-center">
+              <p className="text-sm text-ink-muted">
+                No resumes yet. Upload one above to get your first ATS score.
+              </p>
+            </Card>
+          ) : (
+            <>
+              <h2 className="text-xs font-medium uppercase tracking-wide text-ink-subtle mb-3">
+                {resumes.length} {resumes.length === 1 ? 'resume' : 'resumes'}
+              </h2>
+              <ul className="flex flex-col gap-2">
+                {resumes.map((resume) => {
+                  const meta = STATUS_META[resume.status] ?? {
+                    label: resume.status,
+                    tone: 'text-ink-subtle',
+                  }
+                  return (
+                    <li key={resume.id}>
+                      <Link href={`/resumes/${resume.id}`}>
+                        <Card className="flex items-center justify-between px-4 py-3.5 hover:border-ink-subtle transition-colors">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-ink-muted text-sm font-medium">
+                              📄
+                            </div>
+                            <span className="text-sm font-medium truncate">
+                              {resume.file_name}
+                            </span>
+                          </div>
+                          <span className={`text-xs font-medium shrink-0 ml-3 ${meta.tone}`}>
+                            {meta.label}
+                          </span>
+                        </Card>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
-  );
+  )
 }

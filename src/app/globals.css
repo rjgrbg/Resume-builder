@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Neutral surface scale */
+  --surface: #fafaf9;
+  --surface-raised: #ffffff;
+  --ink: #1c1c1a;
+  --ink-muted: #6b6b66;
+  --ink-subtle: #a3a29c;
+  --border: #e7e5e1;
+  --border-strong: #d4d1cb;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Brand */
+  --brand: #16693f;
+  --brand-hover: #12572f;
+  --brand-ink: #ffffff;
+
+  /* Semantic */
+  --success: #16693f;
+  --success-bg: #eaf5ee;
+  --warning: #92620a;
+  --warning-bg: #fdf3e0;
+  --danger: #b3261e;
+  --danger-bg: #fbeae9;
+
+  --radius: 10px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --surface: #131311;
+    --surface-raised: #1c1c1a;
+    --ink: #f2f1ee;
+    --ink-muted: #a3a29c;
+    --ink-subtle: #77766f;
+    --border: #2b2a27;
+    --border-strong: #3a3935;
+
+    --brand: #35a06a;
+    --brand-hover: #3fb377;
+    --brand-ink: #0d1f14;
+
+    --success: #35a06a;
+    --success-bg: #10261a;
+    --warning: #d6a03d;
+    --warning-bg: #2c2210;
+    --danger: #e2645d;
+    --danger-bg: #2c1614;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 16px -2px rgb(0 0 0 / 0.5), 0 1px 2px rgb(0 0 0 / 0.3);
   }
 }
 
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-ink: var(--brand-ink);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+* {
+  border-color: var(--border);
 }
