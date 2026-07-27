@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   description: "Upload your resume, get an ATS score, and let AI optimize it for interviews.",
 };
 
+export const viewport = {
+  themeColor: "#131311",
+  colorScheme: "dark" as const,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
